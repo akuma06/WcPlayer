@@ -9,6 +9,7 @@ import './controls/PiPButton';
 import './controls/VolumeButton';
 import './controls/Panel';
 import IconButton from './controls/IconButton';
+import { Features } from './PlayerInterface';
 
 export interface ControlElements {
   playPauseButton: HTMLElement;
@@ -33,6 +34,7 @@ export interface WcControlsProps {
 export class WcControls extends HTMLElement {
   elements: ControlElements;
   panels: PanelElements;
+  featuresAvailable: Features[] = [];
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
@@ -105,6 +107,9 @@ export class WcControls extends HTMLElement {
     this.elements.fullscreenButton.addEventListener('click', () => {
       this.emit('wcfullscreen', {});
     });
+    this.elements.pipButton.addEventListener('click', () => {
+      this.emit('wcpip', {});
+    });
   }
 
   build(): string {
@@ -143,13 +148,16 @@ export class WcControls extends HTMLElement {
         .volume-control {
           margin-right: 5px;
         }
+        .disabled {
+          display: none;
+        }
       </style>
       <div class="controls">
-        <seek-element class="seek-element"></seek-element>
+        <seek-element class="seek-element${!this.featuresAvailable.includes(Features.SEEK)? ' disabled' : ''}"></seek-element>
         <div class="control-list">
           <div class="control-right">
             <play-button class="play-button" color="${this.color}"></play-button>
-            <div class="volume-control">
+            <div class="volume-control${!this.featuresAvailable.includes(Features.VOLUME)? ' disabled' : ''}">
               <volume-button class="volume-button" color="${this.color}"></volume-button>
               <volume-element class="volume-element" class="hide"></volume-element>
             </div>
@@ -157,8 +165,8 @@ export class WcControls extends HTMLElement {
           </div>
           <div class="control-left">
             <settings-button class="settings-button" color="${this.color}"></settings-button>
-            <fullscreen-button class="fullscreen-button" color="${this.color}"></fullscreen-button>
-            <pip-button class="pip-button" color="${this.color}"></pip-button>
+            <fullscreen-button class="fullscreen-button${!this.featuresAvailable.includes(Features.FULLSCREEN)? ' disabled' : ''}" color="${this.color}"></fullscreen-button>
+            <pip-button class="pip-button${!this.featuresAvailable.includes(Features.PICTURE_IN_PICTURE)? ' disabled' : ''}" color="${this.color}"></pip-button>
           </div>
         </div>
       </div>

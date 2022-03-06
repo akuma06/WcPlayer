@@ -6,6 +6,15 @@ export enum PlayerType {
   VIDEO,
 }
 
+export enum Features {
+  PICTURE_IN_PICTURE = 'picture-in-picture',
+  FULLSCREEN = 'fullscreen',
+  VOLUME = 'volume',
+  SEEK = 'seek',
+  PLAYBACK_RATE = 'playback-rate',
+  LOOP = 'loop',
+}
+
 export abstract class AbstractPlayer extends HTMLElement {
   protected _playing = false;
   parent?: WcPlayer;
@@ -15,6 +24,7 @@ export abstract class AbstractPlayer extends HTMLElement {
   abstract pause(): Promise<void>;
   abstract seek(t: number): Promise<void>;
   abstract stop(): Promise<void>;
+  abstract get supportedFeatures(): Features[];
 
   constructor(parent?: WcPlayer) {
     super();
@@ -108,6 +118,7 @@ export abstract class AbstractPlayer extends HTMLElement {
       new CustomEvent<PlayerEventMap[K]>(type, { detail: ev }),
     );
   }
+  abstract requestPictureInPicture(): Promise<PictureInPictureWindow>;
 }
 
 export class PlayerConstructor extends AbstractPlayer {
@@ -124,6 +135,12 @@ export class PlayerConstructor extends AbstractPlayer {
     throw new Error('Method not implemented.');
   }
   getAvailableQualities(): Promise<number[]> {
+    throw new Error('Method not implemented.');
+  }
+  requestPictureInPicture(): Promise<PictureInPictureWindow> {
+    throw new Error('Method not implemented.');
+  }
+  get supportedFeatures(): Features[] {
     throw new Error('Method not implemented.');
   }
 }

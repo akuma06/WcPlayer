@@ -1,4 +1,4 @@
-import { AbstractPlayer } from './PlayerInterface';
+import { AbstractPlayer, Features } from './PlayerInterface';
 import WcPlayer from './Player';
 
 enum HTML5PlayerType {
@@ -158,6 +158,14 @@ class HTML5Player extends AbstractPlayer {
       return false;
     });
   }
+
+  get supportedFeatures(): Features[] {
+    throw new Error('HTML5Player: supportedFeatures not implemented');
+  }
+
+  requestPictureInPicture(): Promise<PictureInPictureWindow> {
+    throw new Error('HTML5Player: requestPictureInPicture not implemented');
+  }
 }
 
 export class HTML5AudioPlayer extends HTML5Player {
@@ -167,6 +175,17 @@ export class HTML5AudioPlayer extends HTML5Player {
   static matchElement(el: Element): boolean {
     return el.tagName == 'AUDIO';
   }
+
+  requestPictureInPicture(): Promise<PictureInPictureWindow> {
+    throw new Error('HTML5AudioPlayer: requestPictureInPicture not supported');
+  }
+
+  get supportedFeatures(): Features[] {
+    return [
+      Features.VOLUME,
+      Features.SEEK,
+    ]
+  }
 }
 
 export class HTML5VideoPlayer extends HTML5Player {
@@ -175,6 +194,19 @@ export class HTML5VideoPlayer extends HTML5Player {
 
   static matchElement(el: Element): boolean {
     return el.tagName == 'VIDEO';
+  }
+  requestPictureInPicture(): Promise<PictureInPictureWindow> {
+    return (this.player as HTMLVideoElement).requestPictureInPicture();
+  }
+  get supportedFeatures(): Features[] {
+    return [
+      Features.VOLUME,
+      Features.SEEK,
+      Features.PICTURE_IN_PICTURE,
+      Features.FULLSCREEN,
+      Features.PLAYBACK_RATE,
+      Features.LOOP,
+    ]
   }
 }
 

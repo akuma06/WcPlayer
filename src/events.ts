@@ -39,6 +39,7 @@ export interface ControlsEventMap {
   wcmuted: MuteEvent;
   wcseekchange: SeekChangeEvent;
   wcfullscreen: {};
+  wcpip: {};
 }
 
 export type WcPlayerEvent = {

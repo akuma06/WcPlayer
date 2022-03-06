@@ -117,6 +117,7 @@ export default class WcPlayer extends HTMLElement {
     this.currentPlayer.classList.add('player');
     this.attachPlayerEvents();
     this.shadowRoot.querySelector('.wcplayer').prepend(this.currentPlayer);
+    this.controls.featuresAvailable = this.currentPlayer.supportedFeatures;
     this.controls.reload();
   }
 
@@ -273,6 +274,17 @@ export default class WcPlayer extends HTMLElement {
         } else {
           document.exitFullscreen();
           this.controls.elements.fullscreenButton.removeAttribute('fullscreen');
+        }
+      });
+      this.controls.addEventListener('wcpip', () => {
+        if (!document.pictureInPictureEnabled) {
+          console.warn('Your browser does not support picture in picture');
+          return;
+        }
+        const currentPipElement = document.pictureInPictureElement;
+        if (currentPipElement !== this.currentPlayer) {
+          document.exitPictureInPicture();
+          this.currentPlayer.requestPictureInPicture();
         }
       });
     }
