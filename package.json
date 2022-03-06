@@ -6,32 +6,14 @@
   "author": "akuma06",
   "license": "MIT",
   "scripts": {
-    "dev": "webpack serve",
-    "lint": "eslint ./src/",
-    "lint-fix": "eslint --fix ./src/*.ts",
-    "typecheck": "tsc --noEmit",
-    "build": "yarn typecheck && yarn lint-fix && yarn lib-build && webpack"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
   },
   "devDependencies": {
     "@types/feather-icons": "^4.7.0",
-    "@typescript-eslint/eslint-plugin": "^2.34.0",
-    "@typescript-eslint/parser": "^2.34.0",
-    "awesome-typescript-loader": "^5.2.1",
-    "copy-webpack-plugin": "^8.1.1",
-    "eslint": "^7.0.0",
-    "eslint-config-prettier": "^6.11.0",
-    "eslint-plugin-prettier": "^3.1.3",
-    "html-webpack-plugin": "^5.3.1",
-    "prettier": "^2.0.5",
-    "react-hot-loader": "^4.13.0",
-    "sass": "^1.26.5",
-    "source-map-loader": "^2.0.1",
-    "ts-loader": "^8.1.0",
-    "tsc": "^1.20150623.0",
-    "typescript": "^3.9.3",
-    "webpack": "^5.33.2",
-    "webpack-cli": "^4.6.0",
-    "webpack-dev-server": "^3.11.2"
+    "typescript": "^4.6.2",
+    "vite": "^2.8.6"
   },
   "dependencies": {
     "feather-icons": "^4.28.0"

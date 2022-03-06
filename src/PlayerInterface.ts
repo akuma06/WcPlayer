@@ -7,32 +7,8 @@ export enum PlayerType {
 }
 
 export abstract class AbstractPlayer extends HTMLElement {
-  get volume(): number {
-    return 1;
-  }
-  set volume(volume: number) {
-    throw new Error('Not Implemented');
-  }
-  get muted(): boolean {
-    return false;
-  }
-  set muted(mute: boolean) {
-    throw new Error('Not Implemented');
-  }
-  get duration(): number {
-    return 0;
-  }
-  get currentTime(): number {
-    return 0;
-  }
-  set currentTime(currentTime: number) {
-    this.seek(currentTime);
-  }
-  get textTracks(): any[] {
-    return [];
-  }
   protected _playing = false;
-  parent: WcPlayer;
+  parent?: WcPlayer;
   static platform: string;
   abstract getAvailableQualities(): Promise<number[]>;
   abstract play(): Promise<void>;
@@ -46,7 +22,7 @@ export abstract class AbstractPlayer extends HTMLElement {
   }
 
   static matchElement(el: Element): boolean {
-    return this.match(el.getAttribute('src'));
+    return this.match(el.getAttribute('src') || '');
   }
 
   static match(source: string): boolean {
@@ -57,13 +33,42 @@ export abstract class AbstractPlayer extends HTMLElement {
     return ['source', 'type', 'quality'];
   }
 
+  get volume(): number {
+    return 1;
+  }
+  set volume(volume: number) {
+    throw new Error('Not Implemented');
+  }
+
+  get muted(): boolean {
+    return false;
+  }
+  set muted(mute: boolean) {
+    throw new Error('Not Implemented');
+  }
+
+  get duration(): number {
+    return 0;
+  }
+
+  get currentTime(): number {
+    return 0;
+  }
+  set currentTime(currentTime: number) {
+    this.seek(currentTime);
+  }
+
+  get textTracks(): any[] {
+    return [];
+  }
+
   get autoplay(): boolean {
     return this.hasAttribute('autoplay');
   }
+
   get source(): string {
     return this.hasAttribute('source') ? this.getAttribute('source') : '';
   }
-
   set source(src: string) {
     if (src !== this.source) this.setAttribute('source', src);
   }
@@ -71,7 +76,6 @@ export abstract class AbstractPlayer extends HTMLElement {
   get quality(): number {
     return this.hasAttribute('quality') ? parseInt(this.getAttribute('quality')) : 0;
   }
-
   set quality(quality: number) {
     if (quality !== this.quality) this.setAttribute('quality', quality.toString());
   }

@@ -84,8 +84,14 @@ export default class WcPlayer extends HTMLElement {
     return this._platform.platform;
   }
   set platform(platform: string) {
-    this._platform = WcPlayer.platforms.get(platform);
-    if (this.currentPlayer !== undefined) this.shadowRoot.querySelector('.wcplayer').removeChild(this.currentPlayer);
+    if (!WcPlayer.platforms.has(platform)) {
+      console.error(
+        `The platform "${platform}" doesn't seem available in this instance of WcPlayer. Please check that you've correctly imported it and set it with the "use" static method.`,
+      );
+      return;
+    }
+    this._platform = WcPlayer.platforms.get(platform) as typeof PlayerConstructor;
+    if (this.currentPlayer !== undefined) this.shadowRoot.querySelector('.wcplayer')?.removeChild(this.currentPlayer);
     this.currentPlayer = new this._platform(this);
     this.currentPlayer.classList.add('player');
     this.attachPlayerEvents();

@@ -35,6 +35,7 @@ export class VolumeElement extends HTMLElement {
 
   attributeChangedCallback(name: string): void {
     if (name === 'volume') {
+      this.style.removeProperty('--_perc')
       this.reload();
     }
   }
