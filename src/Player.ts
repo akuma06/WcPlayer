@@ -1,5 +1,5 @@
 import { AbstractPlayer, PlayerConstructor } from './PlayerInterface';
-import { WcControls } from './Controls';
+import { ToggableControls, WcControls } from './Controls';
 import { StoreInterface } from './StoreInterface';
 import { WcPlayerEventMap } from './events';
 import { inRange } from './utils';
@@ -20,6 +20,7 @@ export default class WcPlayer extends HTMLElement {
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.innerHTML = this.build();
     this.attachControllerEvents();
+    this.controls.shownElements = this.shownElements;
     this.shadowRoot.querySelector('.wcplayer').append(this.controls);
     const slot = this.shadowRoot.querySelector('slot.platform');
     slot.classList.add('hide');
@@ -78,7 +79,7 @@ export default class WcPlayer extends HTMLElement {
   }
 
   static get observedAttributes(): string[] {
-    return ['source', 'type', 'muted', 'volume', 'nocontrols', 'autoplay'];
+    return ['source', 'type', 'muted', 'volume', 'nocontrols', 'autoplay', 'shown-elements'];
   }
 
   attributeChangedCallback(name: string, previous: string, current: string) {
@@ -98,6 +99,9 @@ export default class WcPlayer extends HTMLElement {
       if (this.autoplay && !this.currentPlayer.playing) {
         this.currentPlayer.autoplay = this.autoplay;
       }
+    } else if (name == "shown-elements") {
+      this.controls.shownElements = this.shownElements;
+      this.controls.reload();
     }
   }
 
@@ -168,6 +172,21 @@ export default class WcPlayer extends HTMLElement {
     } else {
       this.removeAttribute("autoplay");
     }
+  }
+
+  get shownElements(): ToggableControls[] {
+    if (!this.hasAttribute('shown-elements')) return  [
+      ToggableControls.PlayPause,
+      ToggableControls.Volume,
+      ToggableControls.Mute,
+      ToggableControls.Timer,
+      ToggableControls.Seek,
+      ToggableControls.Settings,
+      ToggableControls.Fullscreen,
+      ToggableControls.PiP,
+    ];
+    const elements = this.getAttribute('shown-elements')?.split(',');
+    return elements as ToggableControls[];
   }
 
   get nocontrols(): boolean {

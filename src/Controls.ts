@@ -31,10 +31,31 @@ export interface WcControlsProps {
   panels: PanelElements;
 }
 
+export enum ToggableControls {
+  PlayPause = 'playPause',
+  Volume = 'volume',
+  Mute = 'mute',
+  Timer = 'timer',
+  Seek = 'seek',
+  Settings = 'settings',
+  Fullscreen = 'fullscreen',
+  PiP = 'pip',
+}
+
 export class WcControls extends HTMLElement {
   elements: ControlElements;
   panels: PanelElements;
   featuresAvailable: Features[] = [];
+  shownElements: ToggableControls[] = [
+    ToggableControls.PlayPause,
+    ToggableControls.Volume,
+    ToggableControls.Mute,
+    ToggableControls.Timer,
+    ToggableControls.Seek,
+    ToggableControls.Settings,
+    ToggableControls.Fullscreen,
+    ToggableControls.PiP,
+  ];
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
@@ -153,20 +174,20 @@ export class WcControls extends HTMLElement {
         }
       </style>
       <div class="controls">
-        <seek-element class="seek-element${!this.featuresAvailable.includes(Features.SEEK)? ' disabled' : ''}"></seek-element>
+        <seek-element class="seek-element${!this.featuresAvailable.includes(Features.SEEK) || !this.shownElements.includes(ToggableControls.Seek) ? ' disabled' : ''}"></seek-element>
         <div class="control-list">
           <div class="control-right">
-            <play-button class="play-button" color="${this.color}"></play-button>
+            <play-button class="play-button${!this.shownElements.includes(ToggableControls.PlayPause) ? ' disabled' : '' }" color="${this.color}"></play-button>
             <div class="volume-control${!this.featuresAvailable.includes(Features.VOLUME)? ' disabled' : ''}">
-              <volume-button class="volume-button" color="${this.color}"></volume-button>
-              <volume-element class="volume-element" class="hide"></volume-element>
+              <volume-button class="volume-button${!this.shownElements.includes(ToggableControls.Mute) ? ' disabled' : '' }" color="${this.color}"></volume-button>
+              <volume-element class="volume-element${!this.shownElements.includes(ToggableControls.Volume) ? ' disabled' : '' }" class="hide"></volume-element>
             </div>
-            <timer-element class="timer-element"></timer-element>
+            <timer-element class="timer-element${!this.shownElements.includes(ToggableControls.Timer) ? ' disabled' : '' }"></timer-element>
           </div>
           <div class="control-left">
-            <settings-button class="settings-button" color="${this.color}"></settings-button>
-            <fullscreen-button class="fullscreen-button${!this.featuresAvailable.includes(Features.FULLSCREEN)? ' disabled' : ''}" color="${this.color}"></fullscreen-button>
-            <pip-button class="pip-button${!this.featuresAvailable.includes(Features.PICTURE_IN_PICTURE)? ' disabled' : ''}" color="${this.color}"></pip-button>
+            <settings-button class="settings-button${!this.shownElements.includes(ToggableControls.Settings) ? ' disabled' : '' }" color="${this.color}"></settings-button>
+            <fullscreen-button class="fullscreen-button${!this.featuresAvailable.includes(Features.FULLSCREEN) || !this.shownElements.includes(ToggableControls.Fullscreen) ? ' disabled' : ''}" color="${this.color}"></fullscreen-button>
+            <pip-button class="pip-button${!this.featuresAvailable.includes(Features.PICTURE_IN_PICTURE) || !this.shownElements.includes(ToggableControls.PiP) ? ' disabled' : ''}" color="${this.color}"></pip-button>
           </div>
         </div>
       </div>
