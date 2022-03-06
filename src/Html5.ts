@@ -8,7 +8,7 @@ enum HTML5PlayerType {
 
 class HTML5Player extends AbstractPlayer {
   static platform = 'html5';
-  static playerTyoe: HTML5PlayerType;
+  static playerType: HTML5PlayerType;
   protected player: HTMLMediaElement;
   constructor(parent?: WcPlayer) {
     super(parent);
@@ -48,7 +48,7 @@ class HTML5Player extends AbstractPlayer {
     `;
     if (this.player !== undefined) this.shadowRoot.removeChild(this.player);
     this.player = document.createElement(
-      (this.constructor as typeof HTML5Player).playerTyoe === HTML5PlayerType.AUDIO ? 'audio' : 'video',
+      (this.constructor as typeof HTML5Player).playerType === HTML5PlayerType.AUDIO ? 'audio' : 'video',
     );
     this.player.setAttribute('src', this.source);
     this.player.currentTime = 0;

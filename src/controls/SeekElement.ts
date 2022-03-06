@@ -1,3 +1,4 @@
+
 export interface SeekOptions {
   bgColor: string;
   thumbColor: string;

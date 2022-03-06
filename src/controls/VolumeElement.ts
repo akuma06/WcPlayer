@@ -1,3 +1,4 @@
+
 export interface VolumeOptions {
   bgColor: string;
   thumbColor: string;

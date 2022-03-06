@@ -8,10 +8,11 @@ import './controls/FullscreenButton';
 import './controls/PiPButton';
 import './controls/VolumeButton';
 import './controls/Panel';
+import IconButton from './controls/IconButton';
 
 export interface ControlElements {
   playPauseButton: HTMLElement;
-  volumeButton: HTMLButtonElement;
+  volumeButton: IconButton;
   volumeElement: HTMLElement;
   timerElement: HTMLElement;
   seekElement: HTMLElement;

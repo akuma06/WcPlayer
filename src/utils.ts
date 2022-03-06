@@ -8,3 +8,7 @@ export function secondsToString(time: number): string {
   str.push(seconds < 10 ? `0${seconds}` : seconds.toString());
   return str.join(':');
 }
+
+export function inRange(min: number, max: number, value: number): number {
+  return Math.max(min, Math.min(max, value));
+}

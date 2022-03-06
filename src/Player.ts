@@ -2,6 +2,7 @@ import { AbstractPlayer, PlayerConstructor } from './PlayerInterface';
 import { WcControls } from './Controls';
 import { StoreInterface } from './StoreInterface';
 import { WcPlayerEventMap } from './events';
+import { inRange } from './utils';
 
 type WcStore = {
   store: StoreInterface;
@@ -77,7 +78,19 @@ export default class WcPlayer extends HTMLElement {
   }
 
   static get observedAttributes(): string[] {
-    return ['source', 'type', 'muted', 'volume'];
+    return ['source', 'type', 'muted', 'volume', 'nocontrols'];
+  }
+
+  attributeChangedCallback(name: string, previous: string, current: string) {
+    if (name == "nocontrols") {
+      this.controls.classList.toggle("hide", this.nocontrols);
+    } else if (name == 'volume') {
+      const volume = inRange(0, 1, parseFloat(current))
+      this.volume = volume;
+      this.muted = volume == 0;
+    } else if (name == "muted") {
+      this.muted = this.hasAttribute('muted');
+    }
   }
 
   get platform(): string {
@@ -122,6 +135,33 @@ export default class WcPlayer extends HTMLElement {
     }
   }
 
+  get volume(): number {
+    return this.currentPlayer.volume;
+  }
+
+  set volume(level: number) {
+    this.currentPlayer.volume = level;
+  }
+
+  get muted(): boolean {
+    return this.currentPlayer.muted;
+  }
+
+  set muted(muted: boolean) {
+    this.currentPlayer.muted = muted;
+  }
+
+  get nocontrols(): boolean {
+    return this.hasAttribute("nocontrols");
+  }
+  set nocontrols(hide: boolean) {
+    if (hide) {
+      this.setAttribute("nocontrols", "");
+    } else {
+      this.removeAttribute("nocontrols")
+    }
+  }
+
   get slotChildElement(): Element {
     return (this.shadowRoot.querySelector('slot.platform') as HTMLSlotElement).assignedElements()[0];
   }
@@ -147,11 +187,10 @@ export default class WcPlayer extends HTMLElement {
       this.currentPlayer.addEventListener('volumechange', () => {
         this.emit('beforevolumechange', { wcplayer: this });
         const { volume, muted } = this.currentPlayer;
-        const isVolumeButtonMuted = this.controls.elements.volumeButton.hasAttribute('mute');
-        if (muted && !isVolumeButtonMuted) {
+        if (muted) {
           this.controls.elements.volumeButton.setAttribute('mute', '');
           this.controls.elements.volumeElement.setAttribute('volume', '0');
-        } else if (!muted && isVolumeButtonMuted) {
+        } else {
           this.controls.elements.volumeButton.removeAttribute('mute');
           this.controls.elements.volumeElement.setAttribute('volume', volume.toString());
         }
