@@ -50,9 +50,13 @@ class HTML5Player extends AbstractPlayer {
     this.player = document.createElement(
       (this.constructor as typeof HTML5Player).playerType === HTML5PlayerType.AUDIO ? 'audio' : 'video',
     );
-    this.player.setAttribute('src', this.source);
     this.player.currentTime = 0;
-    this.player.autoplay = this.autoplay;
+    this.player.muted = this.parent.hasAttribute('muted');
+    this.player.autoplay = this.parent.autoplay;
+    this.player.setAttribute('src', this.source);
+    if (this.autoplay && !this.muted) {
+      console.warn('HTML5Player: autoplay is not muted, web browser may not play audio/video');
+    }
     this.setListeners();
     this.shadowRoot.appendChild(this.player);
   }
@@ -79,6 +83,9 @@ class HTML5Player extends AbstractPlayer {
       this.emit('ended', { player: this });
     });
     this.player.addEventListener('canplay', () => {
+      if (this.autoplay) {
+        this.play();
+      }
       this.emit('ready', { player: this });
     });
     this.player.addEventListener('volumechange', () => {
@@ -128,6 +135,14 @@ class HTML5Player extends AbstractPlayer {
 
   set muted(mute: boolean) {
     this.player.muted = mute;
+  }
+
+  get autoplay(): boolean {
+    return this.player.autoplay;
+  }
+
+  set autoplay(autoplay: boolean) {
+    this.player.autoplay = autoplay;
   }
 
   get sources(): HTMLSourceElement[] {

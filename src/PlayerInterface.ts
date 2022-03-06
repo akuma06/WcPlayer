@@ -63,7 +63,10 @@ export abstract class AbstractPlayer extends HTMLElement {
   }
 
   get autoplay(): boolean {
-    return this.hasAttribute('autoplay');
+    return false;
+  }
+  set autoplay(shouldPlay: boolean) {
+    throw new Error('Not Implemented');
   }
 
   get source(): string {

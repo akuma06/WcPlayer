@@ -78,7 +78,7 @@ export default class WcPlayer extends HTMLElement {
   }
 
   static get observedAttributes(): string[] {
-    return ['source', 'type', 'muted', 'volume', 'nocontrols'];
+    return ['source', 'type', 'muted', 'volume', 'nocontrols', 'autoplay'];
   }
 
   attributeChangedCallback(name: string, previous: string, current: string) {
@@ -94,6 +94,10 @@ export default class WcPlayer extends HTMLElement {
       this.currentPlayer.source = current;
     } else if (name == "type") {
       this.platform = current;
+    } else if (name == "autoplay") {
+      if (this.autoplay && !this.currentPlayer.playing) {
+        this.currentPlayer.autoplay = this.autoplay;
+      }
     }
   }
 
@@ -151,6 +155,18 @@ export default class WcPlayer extends HTMLElement {
 
   set muted(muted: boolean) {
     this.currentPlayer.muted = muted;
+  }
+
+  get autoplay(): boolean {
+    return this.hasAttribute("autoplay");
+  }
+
+  set autoplay(autoplay: boolean) {
+    if (autoplay) {
+      this.setAttribute("autoplay", "");
+    } else {
+      this.removeAttribute("autoplay");
+    }
   }
 
   get nocontrols(): boolean {
@@ -211,8 +227,8 @@ export default class WcPlayer extends HTMLElement {
       this.currentPlayer.addEventListener('ready', () => {
         if (this.currentPlayer.playing) this.controls.elements.playPauseButton.removeAttribute('paused');
         else this.controls.elements.playPauseButton.setAttribute('paused', '');
-        this.controls.elements.volumeElement.setAttribute('volume', this.store.get(this, 'volume').toString());
-        this.currentPlayer.volume = this.store.get(this, 'volume');
+        const volume = this.hasAttribute("volume") ? inRange(0, 1, parseFloat(this.getAttribute("volume"))) : this.store.get(this, 'volume');
+        this.currentPlayer.volume = volume;
         this.emit('ready', { wcplayer: this });
       });
     }
