@@ -136,11 +136,8 @@ export class WcControls extends HTMLElement {
   build(): string {
     return `<style>
         .controls {
-          position: relative;
-          z-index: 2;
           height: 45px;
           width: 100%;
-          top: -45px;
           background: black;
           color: ${this.color};
         }
@@ -162,9 +159,21 @@ export class WcControls extends HTMLElement {
           width: 80px;
           transition: width .3s, visibility .3s;
         }
+        .wc-panel {
+          position: absolute;
+          bottom: 45px;
+          right: 10px;
+          width: 150px;
+          max-height: 30%;
+          transition: height .3s, visibility .3s;
+        }
         .hide {
           visibility: hidden;
           width: 0;
+        }
+        .hide-y {
+          visibility: hidden;
+          height: 0;
         }
         .volume-control {
           margin-right: 5px;
@@ -180,7 +189,7 @@ export class WcControls extends HTMLElement {
             <play-button class="play-button${!this.shownElements.includes(ToggableControls.PlayPause) ? ' disabled' : '' }" color="${this.color}"></play-button>
             <div class="volume-control${!this.featuresAvailable.includes(Features.VOLUME)? ' disabled' : ''}">
               <volume-button class="volume-button${!this.shownElements.includes(ToggableControls.Mute) ? ' disabled' : '' }" color="${this.color}"></volume-button>
-              <volume-element class="volume-element${!this.shownElements.includes(ToggableControls.Volume) ? ' disabled' : '' }" class="hide"></volume-element>
+              <volume-element class="volume-element hide${!this.shownElements.includes(ToggableControls.Volume) ? ' disabled' : '' }"></volume-element>
             </div>
             <timer-element class="timer-element${!this.shownElements.includes(ToggableControls.Timer) ? ' disabled' : '' }"></timer-element>
           </div>
@@ -191,7 +200,7 @@ export class WcControls extends HTMLElement {
           </div>
         </div>
       </div>
-      <wc-panel class="hide"></wc-panel>
+      <wc-panel class="wc-panel hide-y"></wc-panel>
       `;
   }
   addEventListener<K extends keyof ControlsEventMap>(

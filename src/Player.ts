@@ -20,6 +20,7 @@ export default class WcPlayer extends HTMLElement {
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.innerHTML = this.build();
     this.attachControllerEvents();
+    this.controls.classList.add('wc-controls');
     this.controls.shownElements = this.shownElements;
     this.shadowRoot.querySelector('.wcplayer').append(this.controls);
     const slot = this.shadowRoot.querySelector('slot.platform');
@@ -64,6 +65,7 @@ export default class WcPlayer extends HTMLElement {
         height: 100%;
         background: black;
         overflow: hidden;
+        position: relative;
       }
       .player {
         width: 100%;
@@ -71,6 +73,12 @@ export default class WcPlayer extends HTMLElement {
       }
       .hide {
         display: none;
+      }
+      .wc-controls {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
       }
     </style>
     <div class="wcplayer">
