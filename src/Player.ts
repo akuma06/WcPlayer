@@ -90,6 +90,10 @@ export default class WcPlayer extends HTMLElement {
       this.muted = volume == 0;
     } else if (name == "muted") {
       this.muted = this.hasAttribute('muted');
+    } else if (name == "source") {
+      this.currentPlayer.source = current;
+    } else if (name == "type") {
+      this.platform = current;
     }
   }
 
@@ -119,7 +123,6 @@ export default class WcPlayer extends HTMLElement {
   set source(src: string) {
     if (src !== this.source) {
       this.setAttribute('source', src);
-      this.currentPlayer.source = src;
     }
   }
 
@@ -131,7 +134,6 @@ export default class WcPlayer extends HTMLElement {
   set type(type: string) {
     if (type !== this.type && WcPlayer.platforms.has(type)) {
       this.setAttribute('type', type);
-      this.platform = type;
     }
   }
 
