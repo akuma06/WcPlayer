@@ -166,6 +166,9 @@ class HTML5Player extends AbstractPlayer {
   requestPictureInPicture(): Promise<PictureInPictureWindow> {
     throw new Error('HTML5Player: requestPictureInPicture not implemented');
   }
+  get isPiPElement(): boolean {
+    return false;
+  }
 }
 
 export class HTML5AudioPlayer extends HTML5Player {
@@ -185,6 +188,9 @@ export class HTML5AudioPlayer extends HTML5Player {
       Features.VOLUME,
       Features.SEEK,
     ]
+  }
+  get isPiPElement(): boolean {
+    return false;
   }
 }
 
@@ -207,6 +213,9 @@ export class HTML5VideoPlayer extends HTML5Player {
       Features.PLAYBACK_RATE,
       Features.LOOP,
     ]
+  }
+  get isPiPElement(): boolean {
+    return document.pictureInPictureElement === this.player;
   }
 }
 

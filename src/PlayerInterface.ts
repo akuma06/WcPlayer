@@ -24,6 +24,8 @@ export abstract class AbstractPlayer extends HTMLElement {
   abstract pause(): Promise<void>;
   abstract seek(t: number): Promise<void>;
   abstract stop(): Promise<void>;
+  abstract requestPictureInPicture(): Promise<PictureInPictureWindow>;
+  abstract get isPiPElement(): boolean;
   abstract get supportedFeatures(): Features[];
 
   constructor(parent?: WcPlayer) {
@@ -118,7 +120,6 @@ export abstract class AbstractPlayer extends HTMLElement {
       new CustomEvent<PlayerEventMap[K]>(type, { detail: ev }),
     );
   }
-  abstract requestPictureInPicture(): Promise<PictureInPictureWindow>;
 }
 
 export class PlayerConstructor extends AbstractPlayer {
@@ -138,6 +139,9 @@ export class PlayerConstructor extends AbstractPlayer {
     throw new Error('Method not implemented.');
   }
   requestPictureInPicture(): Promise<PictureInPictureWindow> {
+    throw new Error('Method not implemented.');
+  }
+  get isPiPElement(): boolean {
     throw new Error('Method not implemented.');
   }
   get supportedFeatures(): Features[] {

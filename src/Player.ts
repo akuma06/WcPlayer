@@ -282,9 +282,13 @@ export default class WcPlayer extends HTMLElement {
           return;
         }
         const currentPipElement = document.pictureInPictureElement;
-        if (currentPipElement !== this.currentPlayer) {
-          document.exitPictureInPicture();
+        if (!this.currentPlayer.isPiPElement) {
+          if (currentPipElement !== null) {
+            document.exitPictureInPicture();
+          }
           this.currentPlayer.requestPictureInPicture();
+        } else if (currentPipElement !== null) {
+          document.exitPictureInPicture();
         }
       });
     }
