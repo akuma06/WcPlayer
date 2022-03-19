@@ -1,5 +1,5 @@
-import { AbstractPlayer, Features } from './PlayerInterface';
-import WcPlayer from './Player';
+import { AbstractPlayer, Features } from '../PlayerInterface';
+import WcPlayer from '../Player';
 
 enum HTML5PlayerType {
   AUDIO,
@@ -20,11 +20,10 @@ class HTML5Player extends AbstractPlayer {
 
   attributeChangedCallback(name: string): void {
     if (name === 'quality') {
-      this.getAvailableQualities().then((qualities) => {
-        if (qualities.length > 0 && qualities[this.quality] !== undefined) {
-          this.source = this.sources[this.quality].getAttribute('src');
-        }
-      });
+      const qualities = this.getAvailableQualities()
+      if (qualities.length > 0 && qualities[this.quality] !== undefined) {
+        this.source = this.sources[this.quality].getAttribute('src');
+      }
     }
     if (name === 'source') {
       const currentTime = this.player.currentTime;
@@ -105,8 +104,8 @@ class HTML5Player extends AbstractPlayer {
     this.player.pause();
     this.player.currentTime = 0;
   }
-  async getAvailableQualities(): Promise<number[]> {
-    return this.sources.map((source) => parseInt(source.getAttribute('size')));
+  getAvailableQualities(): string[] {
+    return this.sources.map((source) => source.getAttribute('size'));
   }
 
   get currentTime(): number {
@@ -173,7 +172,7 @@ class HTML5Player extends AbstractPlayer {
 
 export class HTML5AudioPlayer extends HTML5Player {
   static platform = 'html5-audio';
-  static playerTyoe = HTML5PlayerType.AUDIO;
+  static playerType = HTML5PlayerType.AUDIO;
 
   static matchElement(el: Element): boolean {
     return el.tagName == 'AUDIO';
@@ -196,7 +195,7 @@ export class HTML5AudioPlayer extends HTML5Player {
 
 export class HTML5VideoPlayer extends HTML5Player {
   static platform = 'html5-video';
-  static playerTyoe = HTML5PlayerType.VIDEO;
+  static playerType = HTML5PlayerType.VIDEO;
 
   static matchElement(el: Element): boolean {
     return el.tagName == 'VIDEO';

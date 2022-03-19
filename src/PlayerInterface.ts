@@ -19,7 +19,7 @@ export abstract class AbstractPlayer extends HTMLElement {
   protected _playing = false;
   parent?: WcPlayer;
   static platform: string;
-  abstract getAvailableQualities(): Promise<number[]>;
+  abstract getAvailableQualities(): string[];
   abstract play(): Promise<void>;
   abstract pause(): Promise<void>;
   abstract seek(t: number): Promise<void>;
@@ -135,7 +135,7 @@ export class PlayerConstructor extends AbstractPlayer {
   stop(): Promise<void> {
     throw new Error('Method not implemented.');
   }
-  getAvailableQualities(): Promise<number[]> {
+  getAvailableQualities(): string[] {
     throw new Error('Method not implemented.');
   }
   requestPictureInPicture(): Promise<PictureInPictureWindow> {
