@@ -46,6 +46,14 @@ export type WcPlayerEvent = {
   wcplayer: WcPlayer;
 };
 
+export class MyCustomEvent<T> extends Event {
+  readonly detail?: T;
+  constructor(type: string, detail?: T) {
+    super(type);
+    this.detail = detail;
+  }
+}
+
 // Events publicly available to WcPlayer listeners
 export interface WcPlayerEventMap {
   beforedurationchange: WcPlayerEvent;

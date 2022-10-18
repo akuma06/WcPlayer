@@ -1,7 +1,7 @@
 import { AbstractPlayer, PlayerConstructor } from './PlayerInterface';
-import { ToggableControls, WcControls } from './Controls';
+import { AbstractPlayerControls, ToggableControls, WcControls } from './Controls';
 import { StoreInterface } from './StoreInterface';
-import { WcPlayerEventMap } from './events';
+import { MyCustomEvent, WcPlayerEventMap } from './events';
 import { inRange } from './utils';
 
 type WcStore = {
@@ -10,20 +10,23 @@ type WcStore = {
 };
 
 export default class WcPlayer extends HTMLElement {
-  private _platform: typeof PlayerConstructor;
+  private _platform: typeof PlayerConstructor | null = null;
   static platforms: Map<string, typeof PlayerConstructor> = new Map();
-  public currentPlayer: PlayerConstructor;
-  private controls = new WcControls();
+  public currentPlayer: PlayerConstructor | null = null;
+  public controls: AbstractPlayerControls | null = null;
   static store: StoreInterface;
-  constructor(type = '', source = '') {
+  constructor(type = '', source = '', controls: AbstractPlayerControls | null = new WcControls()) {
     super();
     this.attachShadow({ mode: 'open' });
-    this.shadowRoot.innerHTML = this.build();
-    this.attachControllerEvents();
-    this.controls.classList.add('wc-controls');
-    this.controls.shownElements = this.shownElements;
-    this.shadowRoot.querySelector('.wcplayer').append(this.controls);
-    const slot = this.shadowRoot.querySelector('slot.platform');
+    this.shadowRoot!.innerHTML = this.build();
+    if (controls !== null) {
+      this.controls = controls;
+      this.attachControllerEvents();
+      this.controls.classList.add('wc-controls');
+      this.controls.shownElements = this.shownElements;
+      this.shadowRoot?.querySelector('.wcplayer')?.append(this.controls);
+    }
+    const slot = this.shadowRoot!.querySelector('slot.platform')!;
     slot.classList.add('hide');
     if (type !== undefined && type !== '') {
       this.type = type;
@@ -92,7 +95,9 @@ export default class WcPlayer extends HTMLElement {
 
   attributeChangedCallback(name: string, previous: string, current: string) {
     if (name == "nocontrols") {
-      this.controls.classList.toggle("hide", this.nocontrols);
+      if (this.controls !== null) {
+        this.controls.classList.toggle("hide", this.nocontrols);
+      }
     } else if (name == 'volume') {
       const volume = inRange(0, 1, parseFloat(current))
       this.volume = volume;
@@ -100,21 +105,24 @@ export default class WcPlayer extends HTMLElement {
     } else if (name == "muted") {
       this.muted = this.hasAttribute('muted');
     } else if (name == "source") {
-      this.currentPlayer.source = current;
+      if (this.currentPlayer !== null) {
+        this.currentPlayer.source = current;
+      }
     } else if (name == "type") {
       this.platform = current;
     } else if (name == "autoplay") {
-      if (this.autoplay && !this.currentPlayer.playing) {
+      if (this.autoplay && this.currentPlayer !== null && !this.currentPlayer.playing) {
         this.currentPlayer.autoplay = this.autoplay;
       }
     } else if (name == "shown-elements") {
-      this.controls.shownElements = this.shownElements;
-      this.controls.reload();
+      if (this.controls !== null) {
+        this.controls.shownElements = this.shownElements;
+      }
     }
   }
 
   get platform(): string {
-    return this._platform.platform;
+    return this._platform?.platform || "";
   }
   set platform(platform: string) {
     if (!WcPlayer.platforms.has(platform)) {
@@ -124,17 +132,18 @@ export default class WcPlayer extends HTMLElement {
       return;
     }
     this._platform = WcPlayer.platforms.get(platform) as typeof PlayerConstructor;
-    if (this.currentPlayer !== undefined) this.shadowRoot.querySelector('.wcplayer')?.removeChild(this.currentPlayer);
+    if (this.currentPlayer !== null) this.shadowRoot!.querySelector('.wcplayer')?.removeChild(this.currentPlayer);
     this.currentPlayer = new this._platform(this);
     this.currentPlayer.classList.add('player');
     this.attachPlayerEvents();
-    this.shadowRoot.querySelector('.wcplayer').prepend(this.currentPlayer);
-    this.controls.featuresAvailable = this.currentPlayer.supportedFeatures;
-    this.controls.reload();
+    this.shadowRoot!.querySelector('.wcplayer')?.prepend(this.currentPlayer);
+    if (this.controls !== null) {
+      this.controls.featuresAvailable = this.currentPlayer.supportedFeatures;
+    }
   }
 
   get source(): string {
-    return this.hasAttribute('source') ? this.getAttribute('source') : '';
+    return this.getAttribute('source') || '';
   }
 
   set source(src: string) {
@@ -144,8 +153,7 @@ export default class WcPlayer extends HTMLElement {
   }
 
   get type(): string {
-    const type = this.hasAttribute('type') ? this.getAttribute('type') : '';
-    return type;
+    return this.getAttribute('type') || '';
   }
 
   set type(type: string) {
@@ -155,19 +163,23 @@ export default class WcPlayer extends HTMLElement {
   }
 
   get volume(): number {
-    return this.currentPlayer.volume;
+    return this.currentPlayer?.volume || 0;
   }
 
   set volume(level: number) {
-    this.currentPlayer.volume = level;
+    if (this.currentPlayer !== null) {
+      this.currentPlayer.volume = level;
+    }
   }
 
   get muted(): boolean {
-    return this.currentPlayer.muted;
+    return this.currentPlayer?.muted || false;
   }
 
   set muted(muted: boolean) {
-    this.currentPlayer.muted = muted;
+    if (this.currentPlayer !== null) {
+      this.currentPlayer.muted = muted;
+    }
   }
 
   get autoplay(): boolean {
@@ -209,74 +221,63 @@ export default class WcPlayer extends HTMLElement {
   }
 
   get slotChildElement(): Element {
-    return (this.shadowRoot.querySelector('slot.platform') as HTMLSlotElement).assignedElements()[0];
+    return (this.shadowRoot!.querySelector('slot.platform') as HTMLSlotElement).assignedElements()[0];
   }
 
   private attachPlayerEvents(): void {
-    if (this.currentPlayer !== undefined) {
+    if (this.currentPlayer !== null) {
       this.currentPlayer.addEventListener('durationchange', () => {
         this.emit('beforedurationchange', { wcplayer: this });
-        this.controls.elements.timerElement.setAttribute('duration', this.currentPlayer.duration.toString());
-        this.controls.elements.timerElement.setAttribute('time', this.currentPlayer.currentTime.toString());
-        this.controls.elements.seekElement.setAttribute('duration', this.currentPlayer.duration.toString());
-        this.controls.elements.seekElement.setAttribute('time', this.currentPlayer.currentTime.toString());
+        this.controls?.setDuration(this.currentPlayer!.duration);
+        this.controls?.setCurrentTime(this.currentPlayer!.currentTime);
         this.emit('afterdurationchange', { wcplayer: this });
       });
       this.currentPlayer.addEventListener('timeupdate', () => {
         this.emit('beforetimeupdate', { wcplayer: this });
-        this.controls.elements.timerElement.setAttribute('duration', this.currentPlayer.duration.toString());
-        this.controls.elements.timerElement.setAttribute('time', this.currentPlayer.currentTime.toString());
-        this.controls.elements.seekElement.setAttribute('duration', this.currentPlayer.duration.toString());
-        this.controls.elements.seekElement.setAttribute('time', this.currentPlayer.currentTime.toString());
+        this.controls?.setDuration(this.currentPlayer!.duration);
+        this.controls?.setCurrentTime(this.currentPlayer!.currentTime);
         this.emit('aftertimeupdate', { wcplayer: this });
       });
       this.currentPlayer.addEventListener('volumechange', () => {
         this.emit('beforevolumechange', { wcplayer: this });
-        const { volume, muted } = this.currentPlayer;
-        if (muted) {
-          this.controls.elements.volumeButton.setAttribute('mute', '');
-          this.controls.elements.volumeElement.setAttribute('volume', '0');
-        } else {
-          this.controls.elements.volumeButton.removeAttribute('mute');
-          this.controls.elements.volumeElement.setAttribute('volume', volume.toString());
-        }
+        const { volume, muted } = this.currentPlayer!;
+        this.controls?.setVolume(muted ? 0 : volume);
         this.emit('aftervolumechange', { wcplayer: this });
       });
       this.currentPlayer.addEventListener('playing', () => {
         this.emit('beforeplaying', { wcplayer: this });
-        this.controls.elements.playPauseButton.removeAttribute('paused');
+        this.controls?.setPlaying(true);
         this.emit('afterplaying', { wcplayer: this });
       });
       this.currentPlayer.addEventListener('pause', () => {
         this.emit('beforepausing', { wcplayer: this });
-        this.controls.elements.playPauseButton.setAttribute('paused', '');
+        this.controls?.setPlaying(false);
         this.emit('afterpausing', { wcplayer: this });
       });
       this.currentPlayer.addEventListener('ready', () => {
-        if (this.currentPlayer.playing) this.controls.elements.playPauseButton.removeAttribute('paused');
-        else this.controls.elements.playPauseButton.setAttribute('paused', '');
-        const volume = this.hasAttribute("volume") ? inRange(0, 1, parseFloat(this.getAttribute("volume"))) : this.store.get(this, 'volume');
-        this.currentPlayer.volume = volume;
+        this.controls?.setPlaying(this.currentPlayer!.playing);
+        const volume = this.hasAttribute("volume") ? inRange(0, 1, parseFloat(this.getAttribute("volume") || "0")) : this.store.get(this, 'volume');
+        this.currentPlayer!.volume = volume!;
         this.emit('ready', { wcplayer: this });
       });
     }
   }
   private attachControllerEvents(): void {
-    if (this.controls !== undefined) {
+    if (this.controls !== null) {
       this.controls.addEventListener('wctoggleplay', () => {
         if (this.currentPlayer !== undefined) {
-          if (this.currentPlayer.playing) this.currentPlayer.pause();
-          else this.currentPlayer.play();
+          if (this.currentPlayer?.playing) this.currentPlayer.pause();
+          else this.currentPlayer?.play();
         }
       });
       this.controls.addEventListener('wcseekchange', (e) => {
-        if (this.currentPlayer !== undefined) {
+        if (this.currentPlayer !== null && e.detail !== undefined) {
           const { time } = e.detail;
           this.currentPlayer.currentTime = time;
         }
       });
       this.controls.addEventListener('wcvolumechange', (e) => {
-        if (this.currentPlayer !== undefined) {
+        if (this.currentPlayer !== null && e.detail !== undefined) {
           const { volume } = e.detail;
           if (volume == 0) {
             this.currentPlayer.muted = true;
@@ -288,7 +289,7 @@ export default class WcPlayer extends HTMLElement {
         }
       });
       this.controls.addEventListener('wcmuted', (e) => {
-        if (this.currentPlayer !== undefined) {
+        if (this.currentPlayer !== null && e.detail !== undefined) {
           const { muted } = e.detail;
           this.currentPlayer.muted = muted;
           this.store.set(this, 'muted', muted);
@@ -297,10 +298,10 @@ export default class WcPlayer extends HTMLElement {
       this.controls.addEventListener('wcfullscreen', () => {
         if (document.fullscreenElement !== this) {
           this.requestFullscreen({ navigationUI: 'hide' });
-          this.controls.elements.fullscreenButton.setAttribute('fullscreen', '');
+          this.controls?.setFullscreen(true);
         } else {
           document.exitFullscreen();
-          this.controls.elements.fullscreenButton.removeAttribute('fullscreen');
+          this.controls?.setFullscreen(false);
         }
       });
       this.controls.addEventListener('wcpip', () => {
@@ -309,11 +310,11 @@ export default class WcPlayer extends HTMLElement {
           return;
         }
         const currentPipElement = document.pictureInPictureElement;
-        if (!this.currentPlayer.isPiPElement) {
+        if (!this.currentPlayer?.isPiPElement) {
           if (currentPipElement !== null) {
             document.exitPictureInPicture();
           }
-          this.currentPlayer.requestPictureInPicture();
+          this.currentPlayer?.requestPictureInPicture();
         } else if (currentPipElement !== null) {
           document.exitPictureInPicture();
         }
@@ -322,7 +323,7 @@ export default class WcPlayer extends HTMLElement {
   }
   addEventListener<K extends keyof WcPlayerEventMap>(
     type: K,
-    listener: (ev: CustomEvent<WcPlayerEventMap[K]>) => void,
+    listener: (ev: MyCustomEvent<WcPlayerEventMap[K]>) => void,
     options?: boolean | AddEventListenerOptions,
   ): void {
     super.addEventListener(type, listener, options);
@@ -330,7 +331,7 @@ export default class WcPlayer extends HTMLElement {
 
   removeEventListener<K extends keyof WcPlayerEventMap>(
     type: K,
-    listener: (ev: CustomEvent<WcPlayerEventMap[K]>) => void,
+    listener: (ev: MyCustomEvent<WcPlayerEventMap[K]>) => void,
     options?: boolean | EventListenerOptions,
   ): void {
     super.removeEventListener(type, listener, options);
@@ -338,7 +339,7 @@ export default class WcPlayer extends HTMLElement {
 
   emit<K extends keyof WcPlayerEventMap>(type: K, ev: WcPlayerEventMap[K]): void {
     super.dispatchEvent(
-      new CustomEvent<WcPlayerEventMap[K]>(type, { detail: ev }),
+      new MyCustomEvent<WcPlayerEventMap[K]>(type, ev),
     );
   }
 }

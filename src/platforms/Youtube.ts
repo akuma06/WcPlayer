@@ -6,7 +6,7 @@ export class YoutubePlayer extends AbstractPlayer {
   static apiURL(videoid: string) {
     return `https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoid}`;
   }
-  youtubePlayer: YT.Player;
+  youtubePlayer!: YT.Player;
   container: HTMLDivElement;
   _updateTimeInterval: number | null;
   _autoplay: boolean;
@@ -14,10 +14,13 @@ export class YoutubePlayer extends AbstractPlayer {
   constructor(parent?: WcPlayer) {
     super(parent);
     this.attachShadow({ mode: 'open' });
-    const htmlElement = this.parent.slotChildElement as HTMLIFrameElement;
+    const htmlElement = this.parent!.slotChildElement as HTMLIFrameElement;
     this.source = htmlElement.src || '';
     this.container = document.createElement('div');
-    this.shadowRoot.append(this.container);
+    this.shadowRoot!.append(this.container);
+    this._duration = 0;
+    this._autoplay = false;
+    this._updateTimeInterval = null;
 
     if (window.YT !== undefined && window.YT.Player !== undefined) {
       this.loadApi();
@@ -118,8 +121,10 @@ export class YoutubePlayer extends AbstractPlayer {
         break;
       case YT.PlayerState.PAUSED:
         this._playing = false;
-        clearInterval(this._updateTimeInterval);
-        this._updateTimeInterval = null;
+        if (this._updateTimeInterval !== null) {
+          clearInterval(this._updateTimeInterval);
+          this._updateTimeInterval = null;
+        }
         this.emit('pause', { player: this });
         break;
       case YT.PlayerState.BUFFERING:
@@ -132,17 +137,17 @@ export class YoutubePlayer extends AbstractPlayer {
   
   loadYouTubeApi() {
     // This code loads the IFrame Player API code asynchronously.
-    var tag = document.createElement('script');
+    const tag = document.createElement('script');
 
     tag.src = "https://www.youtube.com/iframe_api";
-    var firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode!.insertBefore(tag, firstScriptTag);
   }
   
   reloadPlayer() {
-    this.shadowRoot.innerHTML = "";
+    this.shadowRoot!.innerHTML = "";
     this.container = document.createElement('div');
-    this.shadowRoot.append(this.container);
+    this.shadowRoot!.append(this.container);
     this.loadApi();
   }
   getAvailableQualities(): YT.SuggestedVideoQuality[] {
@@ -170,7 +175,7 @@ export class YoutubePlayer extends AbstractPlayer {
     return [Features.FULLSCREEN, Features.LOOP, Features.PLAYBACK_RATE, Features.SEEK, Features.VOLUME];
   }
   static matchElement(el: Element): boolean {
-    return el.tagName === 'IFRAME' && el.getAttribute('src').includes('youtube');
+    return el.tagName === 'IFRAME' && el.hasAttribute('src') && el.getAttribute('src')!.includes('youtube');
   }
   get currentTime(): number {
     return this.youtubePlayer.getCurrentTime();

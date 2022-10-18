@@ -1,4 +1,4 @@
-import { PlayerEventMap } from './events';
+import { MyCustomEvent, PlayerEventMap } from './events';
 import WcPlayer from './Player';
 
 export enum PlayerType {
@@ -82,14 +82,14 @@ export abstract class AbstractPlayer extends HTMLElement {
   }
 
   get source(): string {
-    return this.hasAttribute('source') ? this.getAttribute('source') : '';
+    return this.getAttribute('source') || '';
   }
   set source(src: string) {
     if (src !== this.source) this.setAttribute('source', src);
   }
 
   get quality(): number {
-    return this.hasAttribute('quality') ? parseInt(this.getAttribute('quality')) : 0;
+    return parseInt(this.getAttribute('quality') || "0");
   }
   set quality(quality: number) {
     if (quality !== this.quality) this.setAttribute('quality', quality.toString());
@@ -101,7 +101,7 @@ export abstract class AbstractPlayer extends HTMLElement {
 
   addEventListener<K extends keyof PlayerEventMap>(
     type: K,
-    listener: (ev: CustomEvent<PlayerEventMap[K]>) => void,
+    listener: (ev: MyCustomEvent<PlayerEventMap[K]>) => void,
     options?: boolean | AddEventListenerOptions,
   ): void {
     super.addEventListener(type, listener, options);
@@ -109,7 +109,7 @@ export abstract class AbstractPlayer extends HTMLElement {
 
   removeEventListener<K extends keyof PlayerEventMap>(
     type: K,
-    listener: (ev: CustomEvent<PlayerEventMap[K]>) => void,
+    listener: (ev: MyCustomEvent<PlayerEventMap[K]>) => void,
     options?: boolean | EventListenerOptions,
   ): void {
     super.removeEventListener(type, listener, options);
@@ -117,7 +117,7 @@ export abstract class AbstractPlayer extends HTMLElement {
 
   emit<K extends keyof PlayerEventMap>(type: K, ev: PlayerEventMap[K]): void {
     super.dispatchEvent(
-      new CustomEvent<PlayerEventMap[K]>(type, { detail: ev }),
+      new MyCustomEvent<PlayerEventMap[K]>(type, ev),
     );
   }
 }

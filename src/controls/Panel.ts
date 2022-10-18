@@ -13,12 +13,13 @@ export class Panel extends HTMLElement {
   }
 
   reload(): void {
-    this.shadowRoot.innerHTML = this.build();
+    this.shadowRoot!.innerHTML = this.build();
   }
 
   build(): string {
     return `<style>
       </style>
+      <slot name="header"></slot>
       <slot></slot>`;
   }
 
