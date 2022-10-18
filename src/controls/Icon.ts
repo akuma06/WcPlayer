@@ -7,11 +7,11 @@ export default class Icon extends HTMLElement {
   }
 
   connectedCallback() {
-    this.shadowRoot.innerHTML = this.icon;
+    this.shadowRoot!.innerHTML = this.icon;
   }
 
   get color(): string {
-    if (this.hasAttribute('color')) return this.getAttribute('color');
+    if (this.hasAttribute('color')) return this.getAttribute('color')!;
     return 'white';
   }
 
@@ -25,12 +25,13 @@ export default class Icon extends HTMLElement {
 
   attributeChangedCallback(name: string) {
     if (name === 'color' || name === 'icon') {
-      this.shadowRoot.innerHTML = this.icon;
+      this.shadowRoot!.innerHTML = this.icon;
     }
   }
 
   get icon(): string {
-    const icon = feather.icons[this.getAttribute('icon')];
+    if (!this.hasAttribute('icon')) return '';
+    const icon = feather.icons[this.getAttribute('icon')!];
     return icon !== undefined ? icon.toSvg({ color: this.color }) : '';
   }
 

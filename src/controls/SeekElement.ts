@@ -24,23 +24,23 @@ export class SeekElement extends HTMLElement {
   attributeChangedCallback(name: string): void {
     if (name == 'time' || name == 'duration') {
       this.style.setProperty('--_perc', (this.currentTime / this.duration).toString());
-      (this.shadowRoot.querySelector('.seek-slider') as HTMLInputElement).max = this.duration.toString();
-      (this.shadowRoot.querySelector('.seek-slider') as HTMLInputElement).value = this.currentTime.toString();
+      (this.shadowRoot!.querySelector('.seek-slider') as HTMLInputElement).max = this.duration.toString();
+      (this.shadowRoot!.querySelector('.seek-slider') as HTMLInputElement).value = this.currentTime.toString();
     }
   }
 
   reload(): void {
-    this.shadowRoot.innerHTML = this.build();
-    this.shadowRoot.querySelector('.seek-slider').addEventListener('change', () => {
+    this.shadowRoot!.innerHTML = this.build();
+    this.shadowRoot!.querySelector('.seek-slider')?.addEventListener('change', () => {
       this.onChangeListener();
     });
-    this.shadowRoot.querySelector('.seek-slider').addEventListener('input', () => {
+    this.shadowRoot!.querySelector('.seek-slider')?.addEventListener('input', () => {
       this.onChangeListener();
     });
   }
 
   private onChangeListener(): void {
-    const newTime = parseInt((this.shadowRoot.querySelector('.seek-slider') as HTMLInputElement).value);
+    const newTime = parseInt((this.shadowRoot!.querySelector('.seek-slider') as HTMLInputElement).value);
     requestAnimationFrame(() => {
       this.style.setProperty('--_perc', (newTime / this.duration).toString());
     });
@@ -109,12 +109,12 @@ export class SeekElement extends HTMLElement {
   }
 
   get duration(): number {
-    const duration = this.hasAttribute('duration') ? parseInt(this.getAttribute('duration')) : 0;
+    const duration = this.hasAttribute('duration') ? parseInt(this.getAttribute('duration')!) : 0;
     return !isNaN(duration) ? duration : 0;
   }
 
   get currentTime(): number {
-    const currentTime = this.hasAttribute('time') ? parseInt(this.getAttribute('time')) : 0;
+    const currentTime = this.hasAttribute('time') ? parseInt(this.getAttribute('time')!) : 0;
     return !isNaN(currentTime) ? currentTime : 0;
   }
 

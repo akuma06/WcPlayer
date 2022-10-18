@@ -4,12 +4,12 @@ export default class TimerElement extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
-    this.shadowRoot.innerHTML = this.build();
+    this.shadowRoot!.innerHTML = this.build();
   }
 
   attributeChangedCallback(name: string): void {
     if (name == 'duration' || name == 'time') {
-      this.shadowRoot.innerHTML = this.build();
+      this.shadowRoot!.innerHTML = this.build();
     }
   }
 
@@ -22,7 +22,7 @@ export default class TimerElement extends HTMLElement {
   }
 
   get duration(): string {
-    const duration = this.getAttribute('duration') !== null ? parseInt(this.getAttribute('duration')) : 0;
+    const duration = this.getAttribute('duration') !== null ? parseInt(this.getAttribute('duration')!) : 0;
     if (!isNaN(duration)) {
       return secondsToString(duration);
     }
@@ -30,7 +30,7 @@ export default class TimerElement extends HTMLElement {
   }
 
   get currentTime(): string {
-    const currentTime = this.getAttribute('time') !== null ? parseInt(this.getAttribute('time')) : 0;
+    const currentTime = this.getAttribute('time') !== null ? parseInt(this.getAttribute('time')!) : 0;
     if (!isNaN(currentTime)) {
       return secondsToString(currentTime);
     }

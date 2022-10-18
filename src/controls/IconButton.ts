@@ -3,21 +3,21 @@ export default class IconButton extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
-    this.shadowRoot.innerHTML = this.build();
+    this.shadowRoot!.innerHTML = this.build();
   }
 
   attributeChangedCallback(name: string) {
     if (name === 'color') {
-      this.btn.querySelector('wc-icon').setAttribute('color', this.color);
+      this.btn.querySelector('wc-icon')!.setAttribute('color', this.color);
     }
   }
 
   get btn(): HTMLButtonElement {
-    return this.shadowRoot.querySelector('button');
+    return this.shadowRoot!.querySelector('button')!;
   }
 
   get color(): string {
-    if (this.hasAttribute('color')) return this.getAttribute('color');
+    if (this.hasAttribute('color')) return this.getAttribute('color')!;
     return 'white';
   }
 
@@ -35,7 +35,7 @@ export default class IconButton extends HTMLElement {
 
   set icon(icon: string) {
     this._icon = icon;
-    this.btn.querySelector('wc-icon').setAttribute('icon', icon);
+    this.btn.querySelector('wc-icon')!.setAttribute('icon', icon);
   }
 
   build(): string {

@@ -42,17 +42,17 @@ export class VolumeElement extends HTMLElement {
   }
 
   reload(): void {
-    this.shadowRoot.innerHTML = this.build();
-    this.shadowRoot.querySelector('.volume-slider').addEventListener('change', () => {
+    this.shadowRoot!.innerHTML = this.build();
+    this.shadowRoot!.querySelector('.volume-slider')?.addEventListener('change', () => {
       this.onChangeListener();
     });
-    this.shadowRoot.querySelector('.volume-slider').addEventListener('input', () => {
+    this.shadowRoot!.querySelector('.volume-slider')?.addEventListener('input', () => {
       this.onChangeListener();
     });
   }
 
   private onChangeListener(): void {
-    const volume = parseFloat((this.shadowRoot.querySelector('.volume-slider') as HTMLInputElement).value);
+    const volume = parseFloat((this.shadowRoot!.querySelector('.volume-slider') as HTMLInputElement).value);
     requestAnimationFrame(() => {
       this.style.setProperty('--_perc', volume.toString());
     });
@@ -121,7 +121,7 @@ export class VolumeElement extends HTMLElement {
   }
 
   get volume(): number {
-    return this.hasAttribute('volume') ? parseFloat(this.getAttribute('volume')) : 1;
+    return this.hasAttribute('volume') ? parseFloat(this.getAttribute('volume')!) : 1;
   }
   get vertical(): boolean {
     return this.hasAttribute('vertical');
