@@ -9,11 +9,11 @@ enum HTML5PlayerType {
 class HTML5Player extends AbstractPlayer {
   static platform = 'html5';
   static playerType: HTML5PlayerType;
-  protected player: HTMLMediaElement;
+  protected player!: HTMLMediaElement;
   constructor(parent?: WcPlayer) {
     super(parent);
     this.attachShadow({ mode: 'open' });
-    const htmlElement = this.parent.slotChildElement as HTMLMediaElement;
+    const htmlElement = this.parent!.slotChildElement as HTMLMediaElement;
     this.reloadPlayer();
     this.source = htmlElement.currentSrc || htmlElement.src || '';
   }
@@ -22,7 +22,7 @@ class HTML5Player extends AbstractPlayer {
     if (name === 'quality') {
       const qualities = this.getAvailableQualities()
       if (qualities.length > 0 && qualities[this.quality] !== undefined) {
-        this.source = this.sources[this.quality].getAttribute('src');
+        this.source = this.sources[this.quality].getAttribute('src')!;
       }
     }
     if (name === 'source') {
@@ -37,7 +37,7 @@ class HTML5Player extends AbstractPlayer {
   }
 
   reloadPlayer(): void {
-    this.shadowRoot.innerHTML = `
+    this.shadowRoot!.innerHTML = `
     <style>
       audio, video {
         height: 100%;
@@ -45,19 +45,19 @@ class HTML5Player extends AbstractPlayer {
       }
     </style>
     `;
-    if (this.player !== undefined) this.shadowRoot.removeChild(this.player);
+    if (this.player !== undefined) this.shadowRoot!.removeChild(this.player);
     this.player = document.createElement(
       (this.constructor as typeof HTML5Player).playerType === HTML5PlayerType.AUDIO ? 'audio' : 'video',
     );
     this.player.currentTime = 0;
-    this.player.muted = this.parent.hasAttribute('muted');
-    this.player.autoplay = this.parent.autoplay;
+    this.player.muted = this.parent!.hasAttribute('muted');
+    this.player.autoplay = this.parent!.autoplay;
     this.player.setAttribute('src', this.source);
     if (this.autoplay && !this.muted) {
       console.warn('HTML5Player: autoplay is not muted, web browser may not play audio/video');
     }
     this.setListeners();
-    this.shadowRoot.appendChild(this.player);
+    this.shadowRoot!.appendChild(this.player);
   }
 
   setListeners(): void {
@@ -105,7 +105,7 @@ class HTML5Player extends AbstractPlayer {
     this.player.currentTime = 0;
   }
   getAvailableQualities(): string[] {
-    return this.sources.map((source) => source.getAttribute('size'));
+    return this.sources.map((source) => source.getAttribute('size')!);
   }
 
   get currentTime(): number {
@@ -145,9 +145,9 @@ class HTML5Player extends AbstractPlayer {
   }
 
   get sources(): HTMLSourceElement[] {
-    return Array.from(this.parent.slotChildElement.querySelectorAll('source')).filter((source) => {
+    return Array.from(this.parent!.slotChildElement.querySelectorAll('source')).filter((source) => {
       if (source.hasAttribute('type')) {
-        const [type, mime] = source.getAttribute('type').split('/');
+        const [type, mime] = source.getAttribute('type')!.split('/');
         if (type === this.getAttribute('type')) {
           if (this.player.canPlayType(type + '/' + mime) === '') {
             return true;
